@@ -1,0 +1,28 @@
+/* For WebKit browsers (Chrome, Safari, Edge) */
+::placeholder {
+  color: #aaa !important;
+  opacity: 1;
+}
+
+/* Firefox */
+::-moz-placeholder {
+  color: #aaa;
+  opacity: 1;
+}
+
+/* Firefox older */
+:-ms-input-placeholder {
+  color: #aaa;
+}
+
+/* IE */
+::-webkit-input-placeholder {
+  color: #aaa;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
