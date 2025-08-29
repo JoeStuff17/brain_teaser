@@ -24,7 +24,7 @@ export class ApiService {
     return this.http.get(this.apiBaseUrl + '?action=getQuizList');
   }
 
-  getBibleBooks(): Observable<any> {
+  getBibleBooks(): Observable<any> { 
     return this.http.get(this.apiBaseUrl + '?action=getBibleBooks');
   }
 
