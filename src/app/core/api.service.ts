@@ -13,10 +13,26 @@ export class ApiService {
   ) { }
 
   createAdmin(payload: any): Observable<any> {
-    return this.http.post(this.apiBaseUrl + '?action=register', payload, { responseType: 'text' }).pipe(map(res => JSON.parse(res)));;
+    return this.http.post(this.apiBaseUrl + '?action=register', payload, { responseType: 'text' }).pipe(map(res => JSON.parse(res)));
   }
 
   loginAdmin(payload: { mobile: string, password: string }): Observable<any> {
     return this.http.get(this.apiBaseUrl + '?action=login', { params: { mobile: payload.mobile, password: payload.password } });
+  }
+
+  getQuizList(): Observable<any> {
+    return this.http.get(this.apiBaseUrl + '?action=getQuizList');
+  }
+
+  getBibleBooks(): Observable<any> {
+    return this.http.get(this.apiBaseUrl + '?action=getBibleBooks');
+  }
+
+  playGame(payload: { gameId: number, book: string, count: number, timer: number }): Observable<any> {
+    return this.http.post(this.apiBaseUrl + '?action=playGame', payload, { responseType: 'text' }).pipe(map(res => JSON.parse(res)));
+  }
+
+  getAnswer(payload: { gameId: number, questionId: number }): Observable<any> {
+    return this.http.post(this.apiBaseUrl + '?action=getAnswer', payload, { responseType: 'text' }).pipe(map(res => JSON.parse(res)));
   }
 }
