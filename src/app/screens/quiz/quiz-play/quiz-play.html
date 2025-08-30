@@ -1,171 +1,235 @@
-<div class="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 p-6 md:p-8 overflow-y-scroll ">
-  @if(!isGameStarted()) {
-  <div class="mb-8">
-    <h1 class="text-3xl md:text-4xl font-bold text-indigo-900 mb-2">Bible Quiz Games</h1>
-    <p class="text-indigo-700 text-lg">Select a game to play and challenge your biblical knowledge!</p>
-  </div>
-
-  @if(loading) {
-  <div class="flex flex-col items-center justify-center h-64">
-    <div class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-    <p class="mt-4 text-indigo-700 font-medium">Loading games...</p>
-  </div>
-
-  @if(error) {
-  <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md mb-6">
-    <p class="font-medium">{{ error }}</p>
-    <button (click)="fetchGameList()" class="mt-2 text-sm font-medium text-red-700 hover:text-red-900 underline">
-      Try Again
-    </button>
-  </div>
-  }
-  }
-
-  @if(!loading && !error) {
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (quiz of quizzes; track $index) {
-    <div (click)="selectQuiz(quiz)"
-      class="relative overflow-hidden bg-white rounded-2xl shadow-lg transition-all duration-300 cursor-pointer hover:shadow-xl hover:translate-y-[-4px]"
-      [ngClass]="{'ring-4 ring-indigo-500': quiz.isSelected}">
-
-      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 px-6 py-5 flex items-center">
-        <div class="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mr-4">
-          <i class="fas fa-{{ getQuizIcon(quiz.type) }} text-white text-xl"></i>
-        </div>
-        <h2 class="text-xl font-bold text-white">{{ quiz.name }}</h2>
-      </div>
-
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-4">
-          <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full capitalize">
-            {{ quiz.type }} Game
-          </span>
-          <span class="text-gray-500 text-sm">#{{ quiz.id }}</span>
-        </div>
-
-        <div class="h-48 overflow-y-auto custom-scrollbar">
-          <p class="text-gray-700 whitespace-pre-line">{{ quiz.description }}</p>
-        </div>
-      </div>
-
-      <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
-        @if(quiz.isSelected){
-        <button (click)="startQuiz()"
-          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition-colors duration-200 flex items-center justify-center">
-          <i class="fas fa-play-circle mr-2"></i>
-          Start Playing
-        </button>
-        }
-        @if(!quiz.isSelected) {
-        <button
-          class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg transition-colors duration-200">
-          Select Game
-        </button>
-        }
-      </div>
+<div class="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 p-6 md:p-8 overflow-y-auto">
+  @if (!isGameStarted) {
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl md:text-4xl font-bold text-indigo-900 mb-2">Bible Quiz Games</h1>
+      <p class="text-indigo-700 text-lg">Select a game to play and challenge your biblical knowledge!</p>
     </div>
+
+    <!-- Error -->
+    @if (error) {
+      <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md mb-6">
+        <p class="font-medium">{{ error }}</p>
+        <button (click)="fetchGameList()" class="mt-2 text-sm font-medium text-red-700 hover:text-red-900 underline">
+          Try Again
+        </button>
+      </div>
     }
-  </div>
-  }
 
-  @if(!loading && !error && quizzes.length === 0) {
-  <div class="flex flex-col items-center justify-center h-64 bg-white rounded-xl shadow-md p-8">
-    <i class="fas fa-dice text-4xl text-gray-400 mb-4"></i>
-    <h3 class="text-xl font-medium text-gray-700 mb-2">No Quiz Games Available</h3>
-    <p class="text-gray-500 text-center">There are no quiz games available at the moment. Please check back later.</p>
-  </div>
-  }
+    <!-- Game Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (quiz of games; track $index) {
+        <div
+          (click)="selectQuiz(quiz)"
+          [ngClass]="{'ring-4 ring-indigo-500': quiz.isSelected}"
+          class="relative bg-white rounded-2xl overflow-hidden shadow-lg transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-1"
+          
+        >
+          <div class="bg-gradient-to-r from-indigo-600 to-blue-500 px-6 py-5 flex items-center text-white">
+            <div class="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mr-4">
+              <i class="fas fa-{{ getQuizIcon(quiz.type) }} text-white text-xl"></i>
+            </div>
+            <h2 class="text-xl font-bold">{{ quiz.name }}</h2>
+          </div>
 
-  @if(selectedQuiz) {
-  <div class="mt-8 bg-white rounded-xl shadow-md p-6 animate-fadeIn">
-    <h3 class="text-xl font-bold text-indigo-900 mb-4">How to Play: {{ selectedQuiz.name }}</h3>
+          <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+              <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full capitalize">
+                {{ quiz.type }} Game
+              </span>
+              <span class="text-gray-500 text-sm">#{{ quiz.id }}</span>
+            </div>
+            <!-- <p class="text-gray-700 line-clamp-5">{{ quiz.description }}</p> -->
+            <div class="h-48 overflow-y-auto custom-scrollbar">
+              <p class="text-gray-700 whitespace-pre-line">{{ quiz.description }}</p>
+            </div>
+          </div>
 
-    <div class="flex items-start space-x-4">
-      <div class="flex-shrink-0 bg-indigo-100 rounded-full p-3">
-        <i class="fas fa-info-circle text-indigo-600 text-xl"></i>
-      </div>
-      <div>
-        <p class="text-gray-700 whitespace-pre-line">{{ selectedQuiz.description }}</p>
+          <div class="px-6 py-4 bg-gray-50 border-t">
+            @if (quiz.isSelected) {
+              <button (click)="startQuiz(); $event.stopPropagation()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition flex items-center justify-center">
+                <i class="fas fa-play-circle mr-2"></i> Start Playing
+              </button>
+            } @else {
+              <button class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg transition">
+                Select Game
+              </button>
+            }
+          </div>
+        </div>
+      }
 
-        <div class="mt-6 flex justify-end">
-          <button (click)="startQuiz()"
-            class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
-            <i class="fas fa-play-circle mr-2"></i>
-            Start Game
-          </button>
+      @empty {
+        <div class="col-span-full flex flex-col items-center justify-center h-64 bg-white rounded-xl shadow p-8 text-center">
+          <i class="fas fa-dice text-4xl text-gray-400 mb-4"></i>
+          <h3 class="text-xl font-medium text-gray-700 mb-2">No Quiz Games Available</h3>
+          <p class="text-gray-500">Please check back later.</p>
+        </div>
+      }
+    </div>
+
+    <!-- Selected Game Info -->
+    @if (selectedGame) {
+      <div class="mt-8 bg-white rounded-xl shadow-md p-6 animate-fadeIn">
+        <h3 class="text-xl font-bold text-indigo-900 mb-4">How to Play: {{ selectedGame.name }}</h3>
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 bg-indigo-100 rounded-full p-3">
+            <i class="fas fa-info-circle text-indigo-600 text-xl"></i>
+          </div>
+          <div class="flex-1">
+            <p class="text-gray-700">{{ selectedGame.description }}</p>
+            <div class="mt-6 flex justify-end">
+              <button (click)="startQuiz()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition flex items-center">
+                <i class="fas fa-play-circle mr-2"></i> Start Game
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-  }
+    }
 
-  <!-- Game Option Modal -->
-  @if(gameOptionModalOpen()) {
-  <div class="fixed inset-0 z-50 overflow-y-auto animate-fadeIn" aria-labelledby="modal-title" role="dialog"
-    aria-modal="true">
-    <div class="flex min-h-screen items-center justify-center p-4">
-      <div class="fixed inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm animate-fadeIn"
-        aria-hidden="true"></div>
+    <!-- Game Options Modal -->
+    @if (gameOptionModalOpen) {
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="gameOptionModalOpen = false"></div>
 
-      <div class="relative w-full max-w-md transform animate-slideUp">
-        <div class="relative bg-white rounded-2xl shadow-2xl">
-          <button (click)="gameOptionModalOpen.set(false)" type="button"
-            class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <!-- Modal -->
+        <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl animate-slideUp">
+          <button (click)="gameOptionModalOpen = false" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
-          <div class="pt-6 text-center">
-            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="h-6 w-6 text-indigo-600">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
+          <div class="px-6 pt-14 pb-6 space-y-6">
+            <h3 class="text-xl font-bold text-center text-gray-900">Game Options</h3>
+            <p class="text-center text-gray-600">Set your preferences to begin the quiz.</p>
+
+            <div class="space-y-5">
+              <!-- Book Selection -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Select Book</label>
+                <div class="relative z-20"> <!-- Ensure autocomplete dropdown appears above -->
+                  <app-autocomplete
+                    [options]="availableBooks"
+                    placeholder="Search Bible Book..."
+                    (optionSelected)="onBookSelected($event)"
+                  ></app-autocomplete>
+                </div>
+              </div>
+
+              <!-- Question Count -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Questions (1–100)</label>
+                <input
+                  type="number"
+                  [value]="selectedQuestionCount"
+                  (input)="onQuestionInputChange($event)"
+                  (blur)="onQuestionInputBlur()"
+                  min="1"
+                  max="100"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                />
+              </div>
+
+              <!-- Timer -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Time per Question</label>
+                <app-dropdown
+                  [options]="timerOptions"
+                  (selectionChange)="onTimeSelected($event)"
+                  placeholder="Select time limit"
+                ></app-dropdown>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t">
+              <button (click)="gameOptionModalOpen = false" class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition">
+                Cancel
+              </button>
+              <button (click)="submitGameOption()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow-md hover:shadow-lg">
+                Start Quiz
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  } @else {
+    @if (!selectedQuestion) {
+      <!-- Question Grid -->
+      <div class="flex flex-wrap justify-center gap-5 mt-10">
+        @for (item of questionPattern; track $index) {
+          <div
+            (click)="!item.isAnswered && selectQuestion(item)"
+            [ngClass]="{
+              'border-green-500 bg-green-50': item.isAnswered,
+              'border-indigo-500 hover:border-indigo-600': !item.isAnswered,
+              'cursor-not-allowed opacity-60': item.isAnswered
+            }"
+            class="w-20 h-20 border-4 rounded-xl flex flex-col justify-center items-center transition-all duration-200 relative"
+          >
+            <div class="text-indigo-700">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
               </svg>
             </div>
-          </div>
-
-          <div class="px-6 pt-4 pb-6">
-            <h3 class="text-center text-lg font-semibold text-gray-900 mb-2" id="modal-title">
-              Game Options
-            </h3>
-            <p class="text-center text-sm text-gray-500 mb-6">
-              Please enter your preferences to continue the game.
+            <p class="mt-2 font-bold text-sm" [class.text-green-800]="item.isAnswered">
+              {{ item.id }}
             </p>
-
-            <div class="space-y-4">
-              <div class="mb-6">
-                <label for="character" class="block text-sm font-medium text-gray-700 mb-2">Bible Character</label>
-              
-                <app-autocomplete [options]="availableBooks" displayProperty="" valueProperty="id"
-                  placeholder="Search for a Book..." (optionSelected)="onBookSelected($event)"></app-autocomplete>
-              
-                <!-- @if (form.get('character')?.errors?.['required'] && form.get('character')?.touched) {
-                <p class="mt-2 text-sm text-red-600">Please select a character</p>
-                } -->
+            @if (item.isAnswered) {
+              <div class="absolute inset-0 flex items-center justify-center bg-green-500 bg-opacity-20 rounded-xl">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
               </div>
-              <!-- select book auto complete -->
-              <!-- question count from user (max 100 questions) -->
-              <!-- time limit (No max limit) -->
-            </div>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Question & Answer Modal -->
+      <div class="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="closeQuestionModal()"></div>
+        <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl animate-scaleIn">
+          <!-- Timer Progress -->
+          <div class="h-2 bg-gray-200">
+            <div
+              class="h-full bg-gradient-to-r from-indigo-500 to-blue-500 transition-all duration-100"
+              [style.width.%]="((selectedTime - countdown) / selectedTime) * 100"
+            ></div>
           </div>
 
-          <div class="flex flex-col-reverse gap-2 bg-gray-50 px-6 py-4 sm:flex-row sm:justify-end rounded-b-2xl">
-            <button (click)="gameOptionModalOpen.set(false)" type="button"
-              class="inline-flex justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-colors">
-              Cancel
-            </button>
-            <button (click)="submitGameOption()" type="button"
-              class="inline-flex justify-center rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all hover:shadow-md">
-              Continue...
+          <div class="p-8 text-center">
+            <!-- Countdown -->
+            <div class="mb-6">
+              <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-100 text-indigo-800 text-2xl font-bold border-4 border-indigo-200">
+                {{ countdown }}
+              </div>
+            </div>
+
+            <!-- Question -->
+            <h3 class="text-2xl font-bold text-gray-900 mb-6 leading-relaxed">{{ selectedQuestion.question }}</h3>
+
+            <!-- Answer -->
+            @if (isAnswerRevealed) {
+              <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
+                <h4 class="text-lg font-semibold text-green-800 mb-2">Answer:</h4>
+                <p class="text-green-700 text-lg">{{ selectedQuestion.answer }}</p>
+              </div>
+            }
+
+            <!-- Button -->
+            <button
+              (click)=" !isAnswerRevealed? revealAnswer():closeQuestionModal()"
+              class="mt-4 px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition shadow-md hover:shadow-lg"
+            >
+              {{ isAnswerRevealed ? 'Close' : 'Reveal Answer' }}
             </button>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  }
-
+    }
   }
 </div>
