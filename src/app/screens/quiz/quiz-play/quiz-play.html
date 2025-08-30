@@ -1,1 +1,171 @@
-<p>quiz-play works!</p>
+<div class="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 p-6 md:p-8 overflow-y-scroll ">
+  @if(!isGameStarted()) {
+  <div class="mb-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-indigo-900 mb-2">Bible Quiz Games</h1>
+    <p class="text-indigo-700 text-lg">Select a game to play and challenge your biblical knowledge!</p>
+  </div>
+
+  @if(loading) {
+  <div class="flex flex-col items-center justify-center h-64">
+    <div class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+    <p class="mt-4 text-indigo-700 font-medium">Loading games...</p>
+  </div>
+
+  @if(error) {
+  <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md mb-6">
+    <p class="font-medium">{{ error }}</p>
+    <button (click)="fetchGameList()" class="mt-2 text-sm font-medium text-red-700 hover:text-red-900 underline">
+      Try Again
+    </button>
+  </div>
+  }
+  }
+
+  @if(!loading && !error) {
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (quiz of quizzes; track $index) {
+    <div (click)="selectQuiz(quiz)"
+      class="relative overflow-hidden bg-white rounded-2xl shadow-lg transition-all duration-300 cursor-pointer hover:shadow-xl hover:translate-y-[-4px]"
+      [ngClass]="{'ring-4 ring-indigo-500': quiz.isSelected}">
+
+      <div class="bg-gradient-to-r from-indigo-600 to-blue-500 px-6 py-5 flex items-center">
+        <div class="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center mr-4">
+          <i class="fas fa-{{ getQuizIcon(quiz.type) }} text-white text-xl"></i>
+        </div>
+        <h2 class="text-xl font-bold text-white">{{ quiz.name }}</h2>
+      </div>
+
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full capitalize">
+            {{ quiz.type }} Game
+          </span>
+          <span class="text-gray-500 text-sm">#{{ quiz.id }}</span>
+        </div>
+
+        <div class="h-48 overflow-y-auto custom-scrollbar">
+          <p class="text-gray-700 whitespace-pre-line">{{ quiz.description }}</p>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+        @if(quiz.isSelected){
+        <button (click)="startQuiz()"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition-colors duration-200 flex items-center justify-center">
+          <i class="fas fa-play-circle mr-2"></i>
+          Start Playing
+        </button>
+        }
+        @if(!quiz.isSelected) {
+        <button
+          class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg transition-colors duration-200">
+          Select Game
+        </button>
+        }
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  @if(!loading && !error && quizzes.length === 0) {
+  <div class="flex flex-col items-center justify-center h-64 bg-white rounded-xl shadow-md p-8">
+    <i class="fas fa-dice text-4xl text-gray-400 mb-4"></i>
+    <h3 class="text-xl font-medium text-gray-700 mb-2">No Quiz Games Available</h3>
+    <p class="text-gray-500 text-center">There are no quiz games available at the moment. Please check back later.</p>
+  </div>
+  }
+
+  @if(selectedQuiz) {
+  <div class="mt-8 bg-white rounded-xl shadow-md p-6 animate-fadeIn">
+    <h3 class="text-xl font-bold text-indigo-900 mb-4">How to Play: {{ selectedQuiz.name }}</h3>
+
+    <div class="flex items-start space-x-4">
+      <div class="flex-shrink-0 bg-indigo-100 rounded-full p-3">
+        <i class="fas fa-info-circle text-indigo-600 text-xl"></i>
+      </div>
+      <div>
+        <p class="text-gray-700 whitespace-pre-line">{{ selectedQuiz.description }}</p>
+
+        <div class="mt-6 flex justify-end">
+          <button (click)="startQuiz()"
+            class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
+            <i class="fas fa-play-circle mr-2"></i>
+            Start Game
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Game Option Modal -->
+  @if(gameOptionModalOpen()) {
+  <div class="fixed inset-0 z-50 overflow-y-auto animate-fadeIn" aria-labelledby="modal-title" role="dialog"
+    aria-modal="true">
+    <div class="flex min-h-screen items-center justify-center p-4">
+      <div class="fixed inset-0 bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm animate-fadeIn"
+        aria-hidden="true"></div>
+
+      <div class="relative w-full max-w-md transform animate-slideUp">
+        <div class="relative bg-white rounded-2xl shadow-2xl">
+          <button (click)="gameOptionModalOpen.set(false)" type="button"
+            class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <div class="pt-6 text-center">
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor" class="h-6 w-6 text-indigo-600">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="px-6 pt-4 pb-6">
+            <h3 class="text-center text-lg font-semibold text-gray-900 mb-2" id="modal-title">
+              Game Options
+            </h3>
+            <p class="text-center text-sm text-gray-500 mb-6">
+              Please enter your preferences to continue the game.
+            </p>
+
+            <div class="space-y-4">
+              <div class="mb-6">
+                <label for="character" class="block text-sm font-medium text-gray-700 mb-2">Bible Character</label>
+              
+                <app-autocomplete [options]="availableBooks" displayProperty="" valueProperty="id"
+                  placeholder="Search for a Book..." (optionSelected)="onBookSelected($event)"></app-autocomplete>
+              
+                <!-- @if (form.get('character')?.errors?.['required'] && form.get('character')?.touched) {
+                <p class="mt-2 text-sm text-red-600">Please select a character</p>
+                } -->
+              </div>
+              <!-- select book auto complete -->
+              <!-- question count from user (max 100 questions) -->
+              <!-- time limit (No max limit) -->
+            </div>
+          </div>
+
+          <div class="flex flex-col-reverse gap-2 bg-gray-50 px-6 py-4 sm:flex-row sm:justify-end rounded-b-2xl">
+            <button (click)="gameOptionModalOpen.set(false)" type="button"
+              class="inline-flex justify-center rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 transition-colors">
+              Cancel
+            </button>
+            <button (click)="submitGameOption()" type="button"
+              class="inline-flex justify-center rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all hover:shadow-md">
+              Continue...
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  }
+</div>
