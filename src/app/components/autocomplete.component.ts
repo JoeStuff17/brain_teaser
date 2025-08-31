@@ -53,17 +53,17 @@ import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/f
           class="options-list" 
           role="listbox" 
           [attr.aria-label]="placeholder">
-          @for (option of filteredOptions; track option.id; let i = $index) {
+          @for (option of filteredOptions; track $index) {
             <li 
-              [id]="'option-' + i"
+              [id]="'option-' + $index"
               class="option-item" 
-              [class.active]="i === activeIndex"
+              [class.active]="$index === activeIndex"
               (mousedown)="selectOption(option)"
-              (mouseover)="activeIndex = i"
+              (mouseover)="activeIndex = $index"
               role="option"
-              [attr.aria-selected]="i === activeIndex">
-              <span class="option-text">{{ displayProperty === '' ? option : option[displayProperty] }}</span>
-              @if (option.description) {
+              [attr.aria-selected]="$index === activeIndex">
+              <span class="option-text">{{ isStringArray ? option : option[displayProperty] }}</span>
+              @if (!isStringArray && option.description) {
                 <span class="option-description">{{ option.description }}</span>
               }
             </li>
@@ -248,11 +248,14 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor {
   activeIndex: number = -1;
   filteredOptions: any[] = [];
   selectedOption: any = null;
+  isStringArray: boolean = false;
   
   private onChange: any = () => {};
   private onTouched: any = () => {};
   
   ngOnInit(): void {
+    // Determine if we're dealing with a string array
+    this.isStringArray = this.options.length > 0 && typeof this.options[0] === 'string';
     this.filterOptions();
   }
   
@@ -313,8 +316,15 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor {
   
   selectOption(option: any): void {
     this.selectedOption = option;
-    this.inputValue = this.displayProperty === '' ? option : option[this.displayProperty];
-    this.onChange(option[this.valueProperty]);
+    
+    if (this.isStringArray) {
+      this.inputValue = option;
+      this.onChange(option); // For string arrays, the value is the string itself
+    } else {
+      this.inputValue = option[this.displayProperty];
+      this.onChange(option[this.valueProperty]);
+    }
+    
     this.optionSelected.emit(option);
     this.close();
     this.inputElement.nativeElement.focus();
@@ -346,15 +356,16 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor {
     }
     
     const searchTerm = this.inputValue.toLowerCase();
-    if(this.displayProperty === '') {
+    
+    if (this.isStringArray) {
       this.filteredOptions = this.options.filter(option =>
-        option.toLowerCase().includes(searchTerm)
+        (option as string).toLowerCase().includes(searchTerm)
       );
-      return;
+    } else {
+      this.filteredOptions = this.options.filter(option =>
+        option[this.displayProperty].toLowerCase().includes(searchTerm)
+      );
     }
-    this.filteredOptions = this.options.filter(option =>
-      option[this.displayProperty].toLowerCase().includes(searchTerm)
-    );
   }
   
   // ControlValueAccessor methods
@@ -365,10 +376,18 @@ export class AutocompleteComponent implements OnInit, ControlValueAccessor {
       return;
     }
     
-    const selectedOption = this.options.find(option => option[this.valueProperty] === value);
-    if (selectedOption) {
-      this.selectedOption = selectedOption;
-      this.inputValue = selectedOption[this.displayProperty];
+    if (this.isStringArray) {
+      const selectedOption = this.options.find(option => option === value);
+      if (selectedOption) {
+        this.selectedOption = selectedOption;
+        this.inputValue = selectedOption;
+      }
+    } else {
+      const selectedOption = this.options.find(option => option[this.valueProperty] === value);
+      if (selectedOption) {
+        this.selectedOption = selectedOption;
+        this.inputValue = selectedOption[this.displayProperty];
+      }
     }
   }
   
