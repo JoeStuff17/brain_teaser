@@ -152,7 +152,6 @@ export class QuizPlay implements OnInit {
       return;
     }
     this.apiService.playGame().subscribe((res: any) => {
-      console.log(res);
       this.questionList = res;
     });
 

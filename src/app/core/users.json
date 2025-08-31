@@ -1,0 +1,16 @@
+[
+  {
+    "user_name": "John Joe",
+    "mobile": "9962675336",
+    "password": "123456",
+    "status": "active",
+    "role": "super_admin"
+  },
+  {
+    "user_name": "Joe D",
+    "mobile": "9088776655",
+    "password": "123456",
+    "status": "in_active",
+    "role": "admin"
+  }
+]

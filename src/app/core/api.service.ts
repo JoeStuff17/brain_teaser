@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { map, Observable, of } from "rxjs";
 
 import questions from "./questions.json";
+import users from "./users.json";
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,8 @@ export class ApiService {
   }
 
   loginAdmin(payload: { mobile: string, password: string }): Observable<any> {
-    return this.http.get(this.apiBaseUrl + '?action=login', { params: { mobile: payload.mobile, password: payload.password } });
+    return of(users);
+    // return this.http.get(this.apiBaseUrl + '?action=login', { params: { mobile: payload.mobile, password: payload.password } });
   }
 
   getQuizList(): Observable<any> {
