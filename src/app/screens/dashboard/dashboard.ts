@@ -18,8 +18,7 @@ export class Dashboard {
   notifications = { unread: 1 };
 
   constructor() {
-    this.validateUser();
-    console.log(this.user);
+    // this.validateUser();
   }
 
   validateUser() {
