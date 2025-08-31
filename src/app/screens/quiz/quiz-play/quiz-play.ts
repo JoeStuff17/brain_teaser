@@ -58,6 +58,7 @@ export class QuizPlay implements OnInit {
   isAnswerRevealed = false;
   countdown = 0;
   timerRef: any = null;
+  questionList: any[] = [];
 
   // Timer options
   timerOptions = Array.from({ length: 10 }, (_, i) => {
@@ -150,35 +151,20 @@ export class QuizPlay implements OnInit {
       this.toastService.show({ message: 'Please fill all game options.', type: 'error' });
       return;
     }
+    this.apiService.playGame().subscribe((res: any) => {
+      console.log(res);
+      this.questionList = res;
+    });
 
-    /* TEMP: Mock API response (remove when real API is ready) */
-    const d = {
-      success: true,
-      data: {
-        game: 'pick_and_prove',
-        book: 'Luke',
-        count: 2,
-        questions: [
-          {
-            id: 5,
-            question: 'ஜகாரியா எந்த ஆலய சங்கத்தில் பணியாற்றினார்?',
-            answer: 'அபியா சங்கம் (லூக்கா 1:5)',
-          },
-          {
-            id: 4,
-            question: 'லூக்கா சுவிசேஷம் யாருக்கு எழுதப்பட்டது?',
-            answer: 'தெயோப்பிலுவுக்கு (லூக்கா 1:1)',
-          },
-        ],
-      },
-    };
-
-    if (d.success && d.data.questions) {
-      this.questionPattern = d.data.questions.map((q) => ({
-        ...q,
-        time: this.selectedTime,
-        isAnswered: false,
-      }));
+    if (this.questionList.length) {
+      this.questionPattern = this.questionList
+        .filter(q => q.book === this.selectedBook)
+        .slice(0, this.selectedQuestionCount)
+        .map((q) => ({
+          ...q,
+          time: this.selectedTime,
+          isAnswered: false,
+        }));
       this.isGameStarted = true;
       this.gameOptionModalOpen = false;
     }

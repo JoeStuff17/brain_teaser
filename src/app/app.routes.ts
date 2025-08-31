@@ -36,5 +36,5 @@ export const routes: Routes = [
   },
 
   { path: 'login', component: Login },
-  { path: '**', redirectTo: '/login' }
+  { path: '**', redirectTo: '/dashboard' }
 ];

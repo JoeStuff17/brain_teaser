@@ -1,6 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { map, Observable } from "rxjs";
+import { map, Observable, of } from "rxjs";
+
+import questions from "./questions.json";
 
 @Injectable({
   providedIn: 'root',
@@ -28,8 +30,9 @@ export class ApiService {
     return this.http.get(this.apiBaseUrl + '?action=getBibleBooks');
   }
 
-  playGame(payload: { gameId: number, book: string, count: number, timer: number }): Observable<any> {
-    return this.http.post(this.apiBaseUrl + '?action=playGame', payload, { responseType: 'text' }).pipe(map(res => JSON.parse(res)));
+  playGame(): Observable<any> {
+    return of(questions);
+    // return this.http.post(this.apiBaseUrl + '?action=playGame', payload, { responseType: 'text' }).pipe(map(res => JSON.parse(res)));
   }
 
   getAnswer(payload: { gameId: number, questionId: number }): Observable<any> {

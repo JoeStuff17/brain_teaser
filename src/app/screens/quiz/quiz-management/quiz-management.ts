@@ -7,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrl: './quiz-management.scss'
 })
 export class QuizManagement {
-
+  constructor() {}
 }
