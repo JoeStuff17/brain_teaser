@@ -74,16 +74,20 @@ export class Login {
       password
     };
     if (this.mode === 'signin') {
-      this.apiService.loginAdmin(userData).subscribe((res: any) => {
-        if (res.success) {
-          this.toastService.show({ message: res.message, type: 'success' });
-          localStorage.setItem('user_data', JSON.stringify(res.data));
-          this.router.navigate(['/dashboard']).then();
-        } else {
-          this.authForm.get('password')?.reset();
-          this.toastService.show({ message: res.message, type: 'error' });
-        }
-      })
+      this.apiService.loginAdmin(userData).subscribe((res: any[]) => {
+      const user = res.find(
+        (u: any) => u.mobile == mobile && u.password == password
+      );
+      if (user) {
+        this.toastService.show({ message: 'Login successful!', type: 'success' });
+        localStorage.setItem('user_data', JSON.stringify(user));
+        this.router.navigate(['/dashboard']).then();
+      } else {
+        this.authForm.get('password')?.reset();
+        this.toastService.show({ message: 'Invalid mobile number or password.', type: 'error' });
+      }
+    });
+
     } else if (this.mode === 'signup') {
       this.apiService.createAdmin(userData).subscribe((res: any) => {
         if (res.success) {

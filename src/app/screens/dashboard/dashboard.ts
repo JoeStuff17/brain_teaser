@@ -18,12 +18,12 @@ export class Dashboard {
   notifications = { unread: 1 };
 
   constructor() {
-    // this.validateUser();
+    this.validateUser();
   }
 
   validateUser() {
     if (!this.user) {
-      this.toastService.show({ message: 'Unauthorized access. Please login again.', type: 'error' });
+      this.toastService.show({ message: 'Unauthorized access. Please login again!', type: 'error' });
       document.location.href = '/login';
     } else {
       this.user = JSON.parse(this.user);

@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "name": "pick_and_prove",
+    "description": [
+      "A member from each group picks a numbered paper from a jar.",
+      "The host clicks the number on screen to reveal a question.",
+      "Only that group races to find the Bible verse answer.",
+      "They must answer correctly before the timer runs out to score points."
+    ],
+    "type": "group"
+  },
+  {
+    "id": 2,
+    "name": "connections",
+    "description": [
+      "The host displays a series of images.",
+      "Your team decodes the images to identify a Bible object or person.",
+      "Be the first team to bring the answer to the host to win."
+    ],
+    "type": "group"
+  },
+  {
+    "id": 3,
+    "name": "holy_hunt",
+    "description": [
+      "The host will announce a Bible verse (e.g., \"Matthew 13:33\").",
+      "On \"Go!\", teams race to find the verse in a Bible.",
+      "Once found, they must identify the key object in the verse (e.g., \"yeast\" or \"leaven\").",
+      "Teams then search the room for the physical item that represents that object (e.g., a small packet of yeast).",
+      "The first team to bring the correct item to the host before time runs out scores a point."
+    ],
+    "type": "group"
+  }
+]
