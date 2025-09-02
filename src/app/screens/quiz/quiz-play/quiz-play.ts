@@ -19,6 +19,7 @@ interface Question {
   id: number;
   question: string;
   answer: string;
+  reference: string;
   time: number;
   isAnswered?: boolean;
 }
@@ -61,22 +62,23 @@ export class QuizPlay implements OnInit {
   questionList: any[] = [];
 
   // Timer options
-  timerOptions = Array.from({ length: 10 }, (_, i) => {
-    const seconds = (i + 1) * 30;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+  // timerOptions = Array.from({ length: 10 }, (_, i) => {
+  //   const seconds = (i + 1) * 30;
+  //   const minutes = Math.floor(seconds / 60);
+  //   const remainingSeconds = seconds % 60;
 
-    let label: string;
-    if (minutes === 0) {
-      label = `${seconds} seconds`;
-    } else if (remainingSeconds === 0) {
-      label = `${minutes} minute${minutes === 1 ? '' : 's'}`;
-    } else {
-      label = `${minutes} minute${minutes === 1 ? '' : 's'} ${remainingSeconds} seconds`;
-    }
-
-    return { label, value: seconds };
-  });
+  //   let label: string;
+  //   if (minutes === 0) {
+  //     label = `${seconds} seconds`;
+  //   } else if (remainingSeconds === 0) {
+  //     label = `${minutes} minute${minutes === 1 ? '' : 's'}`;
+  //   } else {
+  //     label = `${minutes} minute${minutes === 1 ? '' : 's'} ${remainingSeconds} seconds`;
+  //   }
+  //   return { label, value: seconds };
+  // });
+  isTimesUp = false;
+  Math = Math;
 
   ngOnInit() {
     this.fetchGameList();
@@ -129,14 +131,34 @@ export class QuizPlay implements OnInit {
     this.selectedBook = value;
   }
 
-  onTimeSelected(event: { value: number }) {
-    this.selectedTime = event.value;
-  }
+  // onTimeSelected(event: { value: number }) {
+  //   this.selectedTime = event.value;
+  // }
 
   onQuestionInputChange(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.selectedQuestionCount = Number(value);
   }
+
+  onTimeSelected(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.selectedTime = Number(value);
+  }
+
+  getBarColor(): string {
+  if (!this.selectedTime || this.countdown < 0) {
+    return '#ef4444'; // red-500 as fallback
+  }
+  const progress = (this.selectedTime - this.countdown) / this.selectedTime;
+  // interpolate between indigo (start) and red (end)
+  const startColor = { r: 99, g: 102, b: 241 }; // indigo-500
+  const endColor   = { r: 239, g: 68,  b: 68  }; // red-500
+  const r = Math.round(startColor.r + (endColor.r - startColor.r) * progress);
+  const g = Math.round(startColor.g + (endColor.g - startColor.g) * progress);
+  const b = Math.round(startColor.b + (endColor.b - startColor.b) * progress);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
 
   onQuestionInputBlur(): void {
     if (!this.selectedQuestionCount || this.selectedQuestionCount < 1) {
@@ -176,15 +198,15 @@ export class QuizPlay implements OnInit {
     }
 
     if (this.timerRef) clearInterval(this.timerRef);
-
     this.selectedQuestion = question;
     this.countdown = question.time;
     this.isAnswerRevealed = false;
+    this.isTimesUp = false;
 
     this.timerRef = setInterval(() => {
       this.countdown--;
       if (this.countdown <= 0) {
-        this.isAnswerRevealed = true;
+        this.isTimesUp = true;
         question.isAnswered = true;
         clearInterval(this.timerRef);
       }
@@ -194,6 +216,7 @@ export class QuizPlay implements OnInit {
   revealAnswer() {
     if (this.timerRef) clearInterval(this.timerRef);
     this.isAnswerRevealed = true;
+    this.isTimesUp = false;
   }
 
   closeQuestionModal() {
